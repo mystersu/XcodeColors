@@ -3,27 +3,25 @@
 
 BOOL XCFixinShouldLoad(void)
 {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     BOOL result = NO;
-    
-    /* Prevent our plugins from loading in non-IDE processes, like xcodebuild. */
-    NSString *processName = [[NSProcessInfo processInfo] processName];
-        XCFixinConfirmOrPerform([processName caseInsensitiveCompare: @"xcode"] == NSOrderedSame, goto cleanup);
-    
-    /* Prevent our plugins from loading in Xcode versions < 4. */
-    NSArray *versionComponents = [[[NSBundle mainBundle] objectForInfoDictionaryKey: @"CFBundleShortVersionString"] componentsSeparatedByString: @"."];
-        XCFixinConfirmOrPerform(versionComponents && [versionComponents count], goto cleanup);
-    NSInteger xcodeMajorVersion = [[versionComponents objectAtIndex: 0] integerValue];
-        XCFixinConfirmOrPerform(xcodeMajorVersion >= 4, goto cleanup);
-    
-    result = YES;
-    
-    cleanup:
+
+    @autoreleasepool
     {
-        [pool release],
-        pool = nil;
+        /* Prevent our plugins from loading in non-IDE processes, like xcodebuild. */
+        NSString *processName = [[NSProcessInfo processInfo] processName];
+        XCFixinConfirmOrPerform([processName caseInsensitiveCompare: @"xcode"] == NSOrderedSame, goto cleanup);
+        
+        /* Prevent our plugins from loading in Xcode versions < 4. */
+        NSArray *versionComponents = [[[NSBundle mainBundle] objectForInfoDictionaryKey: @"CFBundleShortVersionString"] componentsSeparatedByString: @"."];
+        XCFixinConfirmOrPerform(versionComponents && [versionComponents count], goto cleanup);
+        NSInteger xcodeMajorVersion = [[versionComponents objectAtIndex: 0] integerValue];
+        XCFixinConfirmOrPerform(xcodeMajorVersion >= 4, goto cleanup);
+        
+        result = YES;
     }
-    
+
+    cleanup:
+
     return result;
 }
 
